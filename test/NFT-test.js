@@ -147,9 +147,6 @@ describe("NFT", function () {
     , accounts[7].address, accounts[8].address, accounts[9].address]))
     .to.be.revertedWith("NFT: minting would exceed total supply");
     expect(await nft.balanceOf(accounts[2].address)).to.equal(0);
-    await expect(nft.airDrop([accounts[2].address, accounts[6].address]))
-    .to.be.revertedWith("NFT: max purchase reached");
-    expect(await nft.balanceOf(accounts[2].address)).to.equal(0);
     await nft.airDrop([accounts[2].address, accounts[2].address]);
     expect(await nft.balanceOf(accounts[2].address)).to.equal(2);
 
@@ -164,7 +161,7 @@ describe("NFT", function () {
 
     expect(await nft.tokenURI(1)).to.equal("NULL");
     await nft.reveal();
-    expect(await nft.tokenURI(1)).to.equal("https://ipfs.io/ipfs/1.json");
+    expect(await nft.tokenURI(1)).to.equal("https://ipfs.io/ipfs/2.json");
   });
 
   it("Shoud withdraw ETH to Owner's account", async function(){

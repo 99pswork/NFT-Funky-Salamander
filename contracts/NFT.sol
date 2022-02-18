@@ -651,7 +651,7 @@ abstract contract Ownable is Context {
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
      */
-    constructor () internal {
+    constructor () {
         address msgSender = _msgSender();
         _owner = msgSender;
         emit OwnershipTransferred(address(0), msgSender);
@@ -840,7 +840,6 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
         require(currentAirDropSupply + _address.length <= maxAirDropSupply, "NFT: Maximum Air Drop Limit Reached");
         require(mintIndex.add(_address.length) <= maxSupply, "NFT: minting would exceed total supply");
         for(uint256 i = 0; i < _address.length; i++){
-            require(balanceOf(_address[i]).add(1) <= maxPurchase, "NFT: max purchase reached");
             mintIndex.add(i);
             _safeMint(_address[i],1);
         }
@@ -876,7 +875,7 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
         if (revealed == false) {
             return notRevealedUri;
         }
-
+        tokenId+=1;
         string memory currentBaseURI = _baseURI();
         return
             bytes(currentBaseURI).length > 0
