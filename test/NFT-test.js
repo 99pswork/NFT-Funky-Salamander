@@ -6,8 +6,9 @@ describe("NFT", function () {
 
   before(async() =>{
     const NFT = await ethers.getContractFactory("NFT");
-    nft = await NFT.deploy("Harshit", "HAR", 500 , 150, "300000000000000000", "400000000000000000");
+    nft = await NFT.deploy("Funky Salamanders", "FUNKY SALAMANDERS", 15, 2, 4, "50000000000000000", "50000000000000000",100);
     await nft.deployed();
+
 
     accounts = await ethers.getSigners();
     
@@ -20,7 +21,7 @@ describe("NFT", function () {
   it("Should set base URI", async function(){
 
     await nft.setBaseURI("https://ipfs.io/ipfs/");
-    expect(await nft.baseURI()).to.equal("https://ipfs.io/ipfs/");
+    expect(await nft.getURI()).to.equal("https://ipfs.io/ipfs/");
 
   });
 
@@ -31,10 +32,27 @@ describe("NFT", function () {
 
   it("Should add whitelisted addresses", async function(){
     await nft.addWhiteListedAddresses([accounts[1].address, accounts[2].address, accounts[3].address, accounts[4].address]);
+    await nft.addWhiteListedAddressesOG([accounts[5].address, accounts[6].address, accounts[7].address, accounts[8].address]);
     expect(await nft.isWhiteListed(accounts[1].address)).to.equal(true);
     expect(await nft.isWhiteListed(accounts[2].address)).to.equal(true);
     expect(await nft.isWhiteListed(accounts[3].address)).to.equal(true);
     expect(await nft.isWhiteListed(accounts[4].address)).to.equal(true);
+    expect(await nft.isWhiteListedOG(accounts[1].address)).to.equal(false);
+    expect(await nft.isWhiteListedOG(accounts[2].address)).to.equal(false);
+    expect(await nft.isWhiteListedOG(accounts[3].address)).to.equal(false);
+    expect(await nft.isWhiteListedOG(accounts[4].address)).to.equal(false);
+    expect(await nft.isWhiteListed(accounts[5].address)).to.equal(true);
+    expect(await nft.isWhiteListed(accounts[6].address)).to.equal(true);
+    expect(await nft.isWhiteListed(accounts[7].address)).to.equal(true);
+    expect(await nft.isWhiteListed(accounts[8].address)).to.equal(true);
+    expect(await nft.isWhiteListedOG(accounts[5].address)).to.equal(true);
+    expect(await nft.isWhiteListedOG(accounts[6].address)).to.equal(true);
+    expect(await nft.isWhiteListedOG(accounts[7].address)).to.equal(true);
+    expect(await nft.isWhiteListedOG(accounts[8].address)).to.equal(true);
+    expect(await nft.isWhiteListed(accounts[9].address)).to.equal(false);
+    expect(await nft.isWhiteListed(accounts[10].address)).to.equal(false);
+    expect(await nft.isWhiteListed(accounts[11].address)).to.equal(false);
+    expect(await nft.isWhiteListed(accounts[12].address)).to.equal(false);
   });
 
   it("Should change paused state", async function(){
@@ -59,23 +77,18 @@ describe("NFT", function () {
 
   it("Should do a presale mint", async function(){
 
-    await expect(nft.connect(accounts[5])
-    .preSaleMint(10, {value: ethers.utils.parseEther("1.0")}))
+    await expect(nft.connect(accounts[9])
+    .preSaleMint(10, {value: ethers.utils.parseEther("5.0")}))
     .to.be.revertedWith("NFT:Sender is not whitelisted");
 
-    // await expect(nft.connect(accounts[1])
-    // .preSaleMint(10, {value: ethers.utils.parseEther("1.0")}))
-    // .to.be.revertedWith("NFT: contract is paused");
-
-    // await nft.togglePauseState();
-    // expect(await nft.paused()).to.equal(false);
-
-    await nft.connect(accounts[1])
-    .preSaleMint(10, {value: ethers.utils.parseEther("3.0")});
-
+    await nft.connect(accounts[1]).preSaleMint(2, {value: ethers.utils.parseEther("0.1")});
     etherBal = await provider.getBalance(nft.address);
-    expect(await nft.balanceOf(accounts[1].address)).to.equal(10);
-    expect(etherBal).to.equal(ethers.utils.parseEther("3.0"));
+    expect(await nft.balanceOf(accounts[1].address)).to.equal(2);
+    expect(etherBal).to.equal(ethers.utils.parseEther("0.1"));
+
+    await expect(nft.connect(accounts[1])
+    .preSaleMint(1, {value: ethers.utils.parseEther("0.05")}))
+    .to.be.revertedWith("NFT: You can't mint any more tokens");
 
     await nft.togglePreSale();
 
@@ -85,60 +98,61 @@ describe("NFT", function () {
 
     await nft.togglePreSale();
 
-    await nft.connect(accounts[1])
-    .preSaleMint(140, {value: ethers.utils.parseEther("42.0")});
+    await nft.connect(accounts[7])
+    .preSaleMint(3, {value: ethers.utils.parseEther("0.15")});
 
     //max purchase check
-    await expect(nft.connect(accounts[1])
-      .preSaleMint(10, {value: ethers.utils.parseEther("3.0")}))
-      .to.be.revertedWith("NFT: You can't mint so much tokens");
+    await expect(nft.connect(accounts[7])
+    .preSaleMint(2, {value: ethers.utils.parseEther("0.1")}))
+    .to.be.revertedWith("NFT-OG: You can't mint any more tokens");
 
-    expect(await nft.balanceOf(accounts[1].address)).to.equal(150);   
+    expect(await nft.balanceOf(accounts[7].address)).to.equal(3);   
   });
 
   it("Should do a public mint", async function(){
 
-    await expect(nft.connect(accounts[5])
-    .publicSaleMint(100, {value: ethers.utils.parseEther("10.0")}))
+    await expect(nft.connect(accounts[10])
+    .publicSaleMint(1, {value: ethers.utils.parseEther("0.005")}))
     .to.be.revertedWith("NFT: Ether value sent for public mint is not correct");
 
-    await nft.connect(accounts[5])
-    .publicSaleMint(100, {value: ethers.utils.parseEther("40.0")});
+    await nft.connect(accounts[10])
+    .publicSaleMint(2, {value: ethers.utils.parseEther("0.1")});
 
-    expect(await nft.balanceOf(accounts[5].address)).to.equal(100);
+    await nft.connect(accounts[6])
+    .publicSaleMint(4, {value: ethers.utils.parseEther("0.2")});
+
+    expect(await nft.balanceOf(accounts[10].address)).to.equal(2);
 
     etherBal2 = await provider.getBalance(nft.address);
-    expect(etherBal2).to.equal(ethers.utils.parseEther("85.0"));
+    expect(etherBal2).to.equal(ethers.utils.parseEther(".55"));
   });
 
   it("Should check for NFT total supply and Max user Purchase", async function(){
-    await nft.connect(accounts[6])
-    .publicSaleMint(140, {value: ethers.utils.parseEther("60.0")});
     await expect(nft.connect(accounts[6])
-    .publicSaleMint(20, {value: ethers.utils.parseEther("60.0")})).to.be.revertedWith("NFT: You can't mint so much tokens");
-    await expect(nft.connect(accounts[7])
-    .publicSaleMint(140, {value: ethers.utils.parseEther("60.0")})).to.be.revertedWith("NFT: minting would exceed total supply");
-    expect(await nft.totalSupply()).to.equal(390);
+    .publicSaleMint(2, {value: ethers.utils.parseEther("60.0")})).to.be.revertedWith("NFT-OG: You can't mint any more tokens");
+    await nft.connect(accounts[8])
+    .publicSaleMint(1, {value: ethers.utils.parseEther("0.05")});
+    await expect(nft.connect(accounts[12])
+    .publicSaleMint(8, {value: ethers.utils.parseEther("0.1")}))
+    .to.be.revertedWith("NFT: minting would exceed total supply");
+    expect(await nft.totalSupply()).to.equal(12);
 
   });
 
   it("Should do airdrop", async function(){
 
     await expect(nft.airDrop([accounts[1].address, accounts[6].address
-      , accounts[7].address, accounts[8].address, accounts[9].address]))
-      .to.be.revertedWith("NFT: max purchase reached");
-    // expect(await nft.balanceOf(accounts[6].address)).to.equal(1);
-    await nft.airDrop([accounts[6].address
-      , accounts[7].address, accounts[8].address, accounts[9].address]);
-    expect(await nft.balanceOf(accounts[6].address)).to.equal(141);
-    expect(await nft.balanceOf(accounts[7].address)).to.equal(1);
-    expect(await nft.balanceOf(accounts[8].address)).to.equal(1);
-    expect(await nft.balanceOf(accounts[9].address)).to.equal(1);
+    , accounts[7].address, accounts[8].address, accounts[9].address]))
+    .to.be.revertedWith("NFT: minting would exceed total supply");
+    expect(await nft.balanceOf(accounts[2].address)).to.equal(0);
+    await expect(nft.airDrop([accounts[2].address, accounts[6].address]))
+    .to.be.revertedWith("NFT: max purchase reached");
+    expect(await nft.balanceOf(accounts[2].address)).to.equal(0);
+    await nft.airDrop([accounts[2].address, accounts[2].address]);
+    expect(await nft.balanceOf(accounts[2].address)).to.equal(2);
 
-    await nft.connect(accounts[8])
-    .publicSaleMint(106, {value: ethers.utils.parseEther("60.0")});
 
-    await expect(nft.airDrop([accounts[6].address
+  await expect(nft.airDrop([accounts[6].address
       , accounts[7].address, accounts[8].address, accounts[9].address]))
       .to.be.revertedWith("NFT: minting would exceed total supply");
 
@@ -157,7 +171,7 @@ describe("NFT", function () {
     await expect(nft.connect(accounts[1])
     .withdraw())
     .to.be.revertedWith("Ownable: caller is not the owner");
-    // console.log(await provider.getBalance(nft.address));
+    //console.log(await provider.getBalance(nft.address));
 
     await nft.withdraw();
 
@@ -165,8 +179,8 @@ describe("NFT", function () {
     expect(contractBal).to.equal(ethers.utils.parseEther("0.0"));
 
     bal2 = await provider.getBalance(accounts[0].address);
-    console.log(bal2.sub(bal1));
-    expect(String(bal2.sub(bal1))).to.be.closeTo(ethers.utils.parseEther("205.0"), ethers.utils.parseEther("0.1"));
-
+    // console.log(bal2.sub(bal1));
+    // console.log("600000000000000000");
+    expect(String(bal2.sub(bal1))).to.be.closeTo(ethers.utils.parseEther(".6"), ethers.utils.parseEther("0.01"));
   });
 });

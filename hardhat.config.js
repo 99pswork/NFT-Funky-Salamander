@@ -8,13 +8,13 @@
   
   // require('hardhat-spdx-license-identifier');
   // require("hardhat-gas-reporter");
- //  const CONFIG = require("./credentials.js");
+  const CONFIG = require("../NFT/scripts/credentials.json");
   
   module.exports = {
       solidity: {
           compilers: [
               {
-                  version: "0.7.0",
+                  version: "0.8.4",
                   settings: {
                       optimizer: {
                           enabled: true,
@@ -46,7 +46,7 @@
           timeout: 1000000000000,
       },
   
-     //  networks: {
+      networks: {
      //      hardhat: {
      //          blockGasLimit: 10000000000000,
      //          allowUnlimitedContractSize: true,
@@ -66,11 +66,14 @@
      //          accounts: [CONFIG.wallet.PKEY],
      //          gasPrice: 30000000000,
      //      },
-     //     rinkeby: {
-     //         url: "https://rinkeby-light.eth.linkpool.io/",
-     //         accounts: [CONFIG.wallet.PKEY],
-     //     },
-     //  },
+         rinkeby: {
+             url: CONFIG["RINKEBY"]["URL"],
+             accounts: [CONFIG["RINKEBY"]["PKEY"]],
+         },
+      },
+      etherscan: {
+          apiKey: "6WXM3S7GRG2CYWZ61EIAIJR8AVUM8NSW47"
+      }, 
   
       contractSizer: {
           alphaSort: false,
