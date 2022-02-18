@@ -6,7 +6,7 @@ describe("NFT", function () {
 
   before(async() =>{
     const NFT = await ethers.getContractFactory("NFT");
-    nft = await NFT.deploy("Funky Salamanders", "FUNKY SALAMANDERS", 15, 2, 4, "50000000000000000", "50000000000000000",100);
+    nft = await NFT.deploy("Funky Salamanders", "FUNKY SALAMANDERS", 15, 5, 2, 4, "50000000000000000", "50000000000000000",100);
     await nft.deployed();
 
 
@@ -87,8 +87,8 @@ describe("NFT", function () {
     expect(etherBal).to.equal(ethers.utils.parseEther("0.1"));
 
     await expect(nft.connect(accounts[1])
-    .preSaleMint(1, {value: ethers.utils.parseEther("0.05")}))
-    .to.be.revertedWith("NFT: You can't mint any more tokens");
+    .preSaleMint(4, {value: ethers.utils.parseEther("0.15")}))
+    .to.be.revertedWith("NFT-Public: You can't mint any more tokens");
 
     await nft.togglePreSale();
 
@@ -101,12 +101,14 @@ describe("NFT", function () {
     await nft.connect(accounts[7])
     .preSaleMint(3, {value: ethers.utils.parseEther("0.15")});
 
+    await nft.togglePublicSale();
     //max purchase check
     await expect(nft.connect(accounts[7])
     .preSaleMint(2, {value: ethers.utils.parseEther("0.1")}))
     .to.be.revertedWith("NFT-OG: You can't mint any more tokens");
 
     expect(await nft.balanceOf(accounts[7].address)).to.equal(3);   
+    await nft.togglePublicSale();
   });
 
   it("Should do a public mint", async function(){
@@ -129,7 +131,7 @@ describe("NFT", function () {
 
   it("Should check for NFT total supply and Max user Purchase", async function(){
     await expect(nft.connect(accounts[6])
-    .publicSaleMint(2, {value: ethers.utils.parseEther("60.0")})).to.be.revertedWith("NFT-OG: You can't mint any more tokens");
+    .publicSaleMint(2, {value: ethers.utils.parseEther("60.0")})).to.be.revertedWith("NFT-Public: You can't mint any more tokens");
     await nft.connect(accounts[8])
     .publicSaleMint(1, {value: ethers.utils.parseEther("0.05")});
     await expect(nft.connect(accounts[12])

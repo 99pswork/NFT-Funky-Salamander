@@ -729,15 +729,17 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
 
     uint public maxPurchase; // 2
     uint public maxPurchaseOG; // 4
+    uint public publicPurchase; // 5
     string private _baseURIextended;
 
     mapping(address => bool) public isWhiteListed;
     mapping(address => bool) public isWhiteListedOG;
 
-    constructor(string memory name, string memory symbol, uint256 _maxSupply, uint256 _maxPurchase, uint256 _maxPurchaseOG, uint256 _preSalePrice, uint256 _publicSalePrice, uint256 _maxAirDropSupply) ERC721A(name, symbol) ReentrancyGuard() {
+    constructor(string memory name, string memory symbol, uint256 _maxSupply, uint256 _publicPurchase, uint256 _maxPurchase, uint256 _maxPurchaseOG, uint256 _preSalePrice, uint256 _publicSalePrice, uint256 _maxAirDropSupply) ERC721A(name, symbol) ReentrancyGuard() {
         maxSupply = _maxSupply;
         preSalePrice = _preSalePrice;
         publicSalePrice = _publicSalePrice;
+        publicPurchase = _publicPurchase;
         maxPurchase = _maxPurchase;
         maxPurchaseOG = _maxPurchaseOG;
         maxAirDropSupply = _maxAirDropSupply;
@@ -758,11 +760,16 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
     function mint(uint256 _amount, bool _state)internal{
         require(!paused, "NFT: contract is paused");
         require(totalSupply().add(_amount) <= maxSupply, "NFT: minting would exceed total supply");
-        if(isWhiteListedOG[msg.sender]){
-            require(balanceOf(msg.sender).add(_amount) <= maxPurchaseOG, "NFT-OG: You can't mint any more tokens");
+        if(publicSaleActive){
+            require(balanceOf(msg.sender).add(_amount) <= publicPurchase, "NFT-Public: You can't mint any more tokens");
         }
         else{
-            require(balanceOf(msg.sender).add(_amount) <= maxPurchase, "NFT: You can't mint any more tokens");
+            if(isWhiteListedOG[msg.sender]){
+                require(balanceOf(msg.sender).add(_amount) <= maxPurchaseOG, "NFT-OG: You can't mint any more tokens");
+            }
+            else{
+                require(balanceOf(msg.sender).add(_amount) <= maxPurchase, "NFT: You can't mint any more tokens");
+            }
         }
         if(_state){
             require(preSalePrice.mul(_amount) <= msg.value, "NFT: Ether value sent for presale mint is not correct");

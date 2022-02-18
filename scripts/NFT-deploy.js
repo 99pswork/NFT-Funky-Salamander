@@ -13,7 +13,7 @@ contract("NFT deployment", () => {
 
     before(async () => {
       const NFT = await ethers.getContractFactory("NFT");
-      nft = await NFT.deploy("Funky Salamanders", "FUNKY SALAMANDERS", 11, 2, 4, "50000000000000000", "50000000000000000",100);
+      nft = await NFT.deploy("Funky Salamanders", "FUNKY SALAMANDERS", 11,5, 2, 4, "50000000000000000", "50000000000000000",100);
       await nft.deployed();
       //await tx.wait();
       // nftaddr = new ethers.Contract(nft.address, nftABI, account);
