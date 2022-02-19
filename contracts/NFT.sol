@@ -783,10 +783,6 @@ contract NFT is ERC721A, Ownable, ReentrancyGuard {
         }
          _safeMint(msg.sender, _amount);
     }
-    // Delete Code
-    function getURI() public view virtual returns (string memory) {
-        return _baseURI();
-    }
 
     function getTotalSupply() public view returns (uint){
         return totalSupply();
